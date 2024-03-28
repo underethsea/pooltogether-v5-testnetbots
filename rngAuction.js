@@ -144,7 +144,9 @@ if(startDrawAward.gt(rngPayable)){
       CONFIG.CHAINNAME
     ].canFinishDraw();
     if (canFinish) {
-        const finishReward = await CONTRACTS.DRAWMANAGER.finishDrawReward()
+        const finishReward = await CONTRACTS.DRAWMANAGER[
+        CONFIG.CHAINNAME
+      ].finishDrawReward()
         console.log("finish draw reward",ethers.utils.formatUnits(finishReward,ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.DECIMALS))
       const finishTxGas = await CONTRACTS.DRAWMANAGERWITHSIGNER[
         CONFIG.CHAINNAME

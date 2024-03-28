@@ -112,9 +112,11 @@ else {
   if (newWinners === null) {
     console.log("ERROR fetching API");
   } else {
-    console.log("winners before removing claims", newWinners.length);
 
-    newWinners = removeAlreadyClaimed(newWinners, claims, lastDrawId);
+let winVsClaimStats
+    ({ updatedWinners: newWinners, stats:winVsClaimStats } = removeAlreadyClaimed(newWinners, claims, lastDrawId))
+console.log("won vs claimed",winVsClaimStats)
+    console.log("winners before removing claims", newWinners.length);
     console.log("winners after removing claims", newWinners.length);
 
     //  console.log(section("---- checking profitability -----"));
@@ -143,28 +145,54 @@ else {
 }
 
 function removeAlreadyClaimed(winners, claims, drawId) {
-  // Filter the claims for the specified drawId and tier
+  // Initialize statistics objects
+  const tierStats = {
+    totalPrizesByTier: {},
+    claimedPrizesByTier: {},
+  };
+
+  // Filter the claims for the specified drawId
   const relevantClaims = claims.filter((claim) => claim.drawId === drawId);
 
-  return winners
-    .map((winner) => {
-      const [vault, person, tier, prizeIndices] = winner;
+  // Initialize the count of total prizes by tier from winners
+  winners.forEach(([,, tier, prizeIndices]) => {
+    // Increment total prizes for each prize index in the tier
+    tierStats.totalPrizesByTier[tier] = (tierStats.totalPrizesByTier[tier] || 0) + prizeIndices.length;
+  });
 
-      // Check each prize index to see if it's been claimed
-      const unclaimedPrizeIndices = prizeIndices.filter(
-        (prizeIndex) =>
-          !relevantClaims.some(
-            (claim) =>
-              claim.vault.toLowerCase() === vault.toLowerCase() &&
-              claim.winner.toLowerCase() === person.toLowerCase() &&
-              claim.index === prizeIndex
-          )
-      );
+  // Initialize the count of claimed prizes by tier from claims
+  relevantClaims.forEach((claim) => {
+    tierStats.claimedPrizesByTier[claim.tier] = (tierStats.claimedPrizesByTier[claim.tier] || 0) + 1;
+  });
 
-      // Return the winner with only unclaimed prize indices
-      return [vault, person, tier, unclaimedPrizeIndices];
-    })
-    .filter((winner) => winner[3].length > 0); // Remove winners with no unclaimed prizes
+  const updatedWinners = winners.map((winner) => {
+    const [vault, person, tier, prizeIndices] = winner;
+
+    // Filter out claimed prizes
+    const unclaimedPrizeIndices = prizeIndices.filter(
+      (prizeIndex) =>
+        !relevantClaims.some(
+          (claim) =>
+            claim.vault.toLowerCase() === vault.toLowerCase() &&
+            claim.winner.toLowerCase() === person.toLowerCase() &&
+            claim.index === prizeIndex
+        )
+    );
+
+    // Adjust the count of claimed prizes for the tier based on the difference
+    if (prizeIndices.length !== unclaimedPrizeIndices.length) {
+      tierStats.claimedPrizesByTier[tier] = (tierStats.claimedPrizesByTier[tier] || 0) + (prizeIndices.length - unclaimedPrizeIndices.length);
+    }
+
+    // Return the winner with only unclaimed prize indices
+    return [vault, person, tier, unclaimedPrizeIndices];
+  }).filter((winner) => winner[3].length > 0); // Remove winners with no unclaimed prizes
+
+  // Return both the updated winners list and the statistics
+  return {
+    updatedWinners,
+    stats: tierStats
+  };
 }
 
 async function executeAfterRandomTime(minTime, maxTime) {

@@ -17,7 +17,7 @@ function splitArrayIntoBatches(array, batchSize) {
     return batches;
 }
 // Define a function to run winner calculation for each set of parameters
-async function GetFoundryWinnersByVault(playersData) {
+async function GetFoundryWinnersByVault(playersData,rpc) {
     try {
         const startTime = new Date();
         const aggregatedResults = [];
@@ -35,11 +35,11 @@ async function GetFoundryWinnersByVault(playersData) {
                     batchCounter++
                     console.log("batch",batchCounter,"of ",addressBatches.length)
                     const batchParams = { ...params, userAddresses: batch };
-                    const results = await runWinnerCalculation(batchParams);
+                    const results = await runWinnerCalculation(batchParams,rpc);
                     aggregatedResults.push(...results.winners.map(winner => ({ ...winner, vault: vaultAddress })));
                 }
             } else {
-                const results = await runWinnerCalculation(params);
+                const results = await runWinnerCalculation(params,rpc);
                 if (results.winners.length > 0) {
                     aggregatedResults.push(...results.winners.map(winner => ({ ...winner, vault: vaultAddress })));
                 }

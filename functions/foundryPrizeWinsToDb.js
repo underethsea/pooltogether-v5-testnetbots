@@ -70,7 +70,7 @@ const groupedResult = groupPlayersByVaultForFoundry(chainId,ADDRESS[CONFIG.CHAIN
 
 
 
-const winnersData = await GetFoundryWinnersByVault(groupedResult);
+const winnersData = await GetFoundryWinnersByVault(groupedResult,PROVIDERS[CONFIG.CHAINNAME].connection.url);
 fs.writeFileSync('winners.json', JSON.stringify(winnersData, null, 2));
 //console.log(winnersData)
 //console.log(`Fetched winners for Tier ${tier}`);
@@ -128,5 +128,5 @@ function groupPlayersByVaultForFoundry(chain,prizePool,players) {
 }
 
 
-//FoundryPrizeWinsToDb(11155420)
+FoundryPrizeWinsToDb(11155420)
 module.exports = {FoundryPrizeWinsToDb}

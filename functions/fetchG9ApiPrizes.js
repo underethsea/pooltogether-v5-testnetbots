@@ -62,7 +62,7 @@ const FetchG9ApiPrizes = async (chain, prizePool, draw) => {
     const jsonFilesUrl = await listJsonFiles('GenerationSoftware', 'pt-v5-winners-testnet', `winners/vaultAccounts/${chain}/${prizePool.toLowerCase()}/draw/${draw}`);
     const aggregatedPrizes = await fetchAndAggregatePrizes(jsonFilesUrl);
 
-    console.log(aggregatedPrizes)
+    //console.log(aggregatedPrizes)
     return aggregatedPrizes;
   } catch (error) {
     console.log(error);

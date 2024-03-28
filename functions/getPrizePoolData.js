@@ -116,8 +116,8 @@ for (let i = 0; i < numberOfTiers; i++) {
   maxFee.push(tierMaxClaimFee)
   tierRemainingLiquidites.push(tierRemainingLiquidity)
 }
-console.log("max fees",maxFee)
-console.log("timestamps?",tierTimestamps)
+//console.log("max fees",maxFee)
+//console.log("timestamps?",tierTimestamps)
 // console.log("prize sizes?",prizeSizes)
   } catch (error) {
     console.log("Error fetching data:", error);

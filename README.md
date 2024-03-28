@@ -29,8 +29,8 @@ add wallet address and private key to .env
 
 you will need ETH gas on your new wallet. Alchemy has free faucets for testnets
 
-you will need the prize token (POOL) to liquidate yield. for testnets you can use the faucet and drip to your wallet specified in config.js. do so by running `node drip.js`
-
+you will need the prize token to liquidate yield. for testnets you can use the faucet and drip to your wallet specified in config.js. do so by running `node tools/dripTestnet.js`
+ 
 you will need to approve of the prize token spend by the liquidation router, this can be done by running `node tools/approveLiquidationRouter.js`
 
 new prize network deployments/chains can be added in constants/address.js
