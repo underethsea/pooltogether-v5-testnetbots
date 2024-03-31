@@ -150,20 +150,21 @@ function removeAlreadyClaimed(winners, claims, drawId) {
     totalPrizesByTier: {},
     claimedPrizesByTier: {},
   };
-
   // Filter the claims for the specified drawId
   const relevantClaims = claims.filter((claim) => claim.drawId === drawId);
 
   // Initialize the count of total prizes by tier from winners
   winners.forEach(([,, tier, prizeIndices]) => {
+
     // Increment total prizes for each prize index in the tier
     tierStats.totalPrizesByTier[tier] = (tierStats.totalPrizesByTier[tier] || 0) + prizeIndices.length;
   });
 
-  // Initialize the count of claimed prizes by tier from claims
-  relevantClaims.forEach((claim) => {
-    tierStats.claimedPrizesByTier[claim.tier] = (tierStats.claimedPrizesByTier[claim.tier] || 0) + 1;
-  });
+// Increment claims for each tier
+relevantClaims.forEach((claim) => {
+  console.log(`Claim Tier: ${claim.tier}, Current Count: ${tierStats.claimedPrizesByTier[claim.tier] || 0}`);
+  tierStats.claimedPrizesByTier[claim.tier] = (tierStats.claimedPrizesByTier[claim.tier] || 0) + 1;
+});
 
   const updatedWinners = winners.map((winner) => {
     const [vault, person, tier, prizeIndices] = winner;
@@ -179,10 +180,11 @@ function removeAlreadyClaimed(winners, claims, drawId) {
         )
     );
 
+/*
     // Adjust the count of claimed prizes for the tier based on the difference
     if (prizeIndices.length !== unclaimedPrizeIndices.length) {
       tierStats.claimedPrizesByTier[tier] = (tierStats.claimedPrizesByTier[tier] || 0) + (prizeIndices.length - unclaimedPrizeIndices.length);
-    }
+    }*/
 
     // Return the winner with only unclaimed prize indices
     return [vault, person, tier, unclaimedPrizeIndices];

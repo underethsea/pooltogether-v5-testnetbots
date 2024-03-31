@@ -75,21 +75,48 @@ fs.writeFileSync('winners.json', JSON.stringify(winnersData, null, 2));
 //console.log(winnersData)
 //console.log(`Fetched winners for Tier ${tier}`);
 
-const addWinPromises = winnersData.flatMap(winnerData => {
-  const { user, prizes, vault } = winnerData;
-  return Object.entries(prizes).flatMap(([tier, indices]) => {
-    // Log each winner before returning the promise
-    console.log(`${ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL} User: ${user}, Vault: ${vault}, Tier: ${tier}, Indices: ${indices}`);
-    return AddWin(chainId, lastDrawId.toString(), vault, user, tier, indices, ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL);
+
+// Consolidation logic
+const consolidatedWinnersData = winnersData.reduce((acc, {user, prizes, vault}) => {
+  Object.entries(prizes).forEach(([tier, indices]) => {
+    // Generate a unique key for each combination of user, tier, and vault
+    const key = `${user}-${tier}-${vault}`;
+    if (!acc[key]) {
+      acc[key] = {user, vault, tier, indices: []};
+    }
+    // Combine indices for matching user, tier, and vault
+    acc[key].indices = [...acc[key].indices, ...indices];
   });
+  return acc;
+}, {});
+
+// Convert the consolidated object back to an array format
+const consolidatedArray = Object.values(consolidatedWinnersData);
+
+fs.writeFile('consolidatedWinnersData.json', JSON.stringify(consolidatedArray, null, 2), (err) => {
+  if (err) {
+    console.error("An error occurred while writing JSON to file:", err);
+  } else {
+    console.log("JSON data has been written to disk successfully.");
+  }
 });
 
-try {
-  await Promise.all(addWinPromises);
-  console.log("All winners processed successfully.");
-} catch (error) {
-  console.error("An error occurred while processing winners:", error);
-}
+// Assuming consolidatedArray contains the data prepared for processing
+const addWinPromises = consolidatedArray.map(({ user, vault, tier, indices }) => {
+  console.log(`Adding: User: ${user}, Vault: ${vault}, Tier: ${tier}, Indices: ${indices}`);
+  return AddWin(chainId, lastDrawId.toString(), vault, user, tier, indices, ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL);
+});
+
+// Execute all AddWin operations in parallel
+Promise.all(addWinPromises)
+  .then(() => {
+    console.log("All winners processed successfully.");
+  })
+  .catch(error => {
+    console.error("An error occurred while processing winners:", error);
+  });
+
+
 /*
     for (const [vault, pooler, tier, indices] of combinedArray) {
       console.log(

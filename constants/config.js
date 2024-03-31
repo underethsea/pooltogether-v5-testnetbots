@@ -12,11 +12,11 @@ const CONFIG = {
 
   // Timing Configuration for looping claimer and liquidator apps
   // retries will be a random time between min and max
-  minTimeInMilliseconds: 55 * 60 * 1000, // Minimum polling interval (5 * 60 = 5 minutes)
-  maxTimeInMilliseconds: 85 * 60 * 1000, // Maximum polling interval (12 * 60 = 12 minutes)
+  minTimeInMilliseconds: 30 * 60 * 1000, // Minimum polling interval (5 * 60 = 5 minutes)
+  maxTimeInMilliseconds: 45 * 60 * 1000, // Maximum polling interval (12 * 60 = 12 minutes)
 
   // Claimer Configuration
-  USEAPI: "g9", // "none" or "pooltime" or "g9"
+  USEAPI: "pooltime", // "none" or "pooltime" or "g9"
   TIERSTOCLAIM: [0, 1, 2, 3, 4, 5, 6, 7, 8],
   TXDELAY: 10000, // Delay between transactions in milliseconds
   MINPROFIT: 0.03, // Minimum acceptable profit in $ for a claim transaction

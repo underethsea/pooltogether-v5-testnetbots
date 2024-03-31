@@ -45,10 +45,17 @@ async function listen() {
      LISTENPROVIDER.on(FILTERS.DRAWAWARDED, (drawCompletedEvent) => {
              console.log("draw completed event", drawCompletedEvent)
 		//try{DailyReport()}catch(e){console.log(e)}
+setTimeout(() => {
+  try {
+    FoundryPrizeWinsToDb(chainId, drawCompletedEvent.blockNumber)
+      .then((finished) => {
+        console.log("db updated");
+      });
+  } catch (error) {
+    console.log(error);
+  }
+}, 90000);
 
-                try {
-                   FoundryPrizeWinsToDb(chainId,drawCompletedEvent.blockNumber).then((finished)=>{console.log("db updated")})                      
-                }catch(error){console.log(error)}
 //try{LiquidateNow()}catch(e){console.log(e)}     
           })
 //console.log(WS_PROVIDERS[chain])
