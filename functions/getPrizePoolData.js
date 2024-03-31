@@ -45,7 +45,6 @@ const GetPrizePoolData = async (block="latest") => {
       CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].accountedBalance({blockTag: block}),
       CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].reserve({blockTag: block}),
     ]);
-
 lastCompletedDrawStartedAt = parseInt(lastAwardedDrawAwardedAt) - parseInt(drawPeriodSeconds)
 // Create an array to hold all the multicall requests
 const multicallRequests = [];

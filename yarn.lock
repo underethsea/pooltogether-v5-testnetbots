@@ -782,10 +782,10 @@ ajv@^8.12.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-alchemy-sdk@^2.10.1:
-  version "2.10.1"
-  resolved "https://registry.npmjs.org/alchemy-sdk/-/alchemy-sdk-2.10.1.tgz"
-  integrity sha512-zV6rBS2K0H3ickE28N7YiPvKPP9EQV+ZAiv9Zi3+aSzhcm0D1bkK+OS/+Tc7mU6EflSpZcDNC1fsLWlRqJOX4Q==
+alchemy-sdk@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/alchemy-sdk/-/alchemy-sdk-3.2.0.tgz#0e0d143bc2df8963a2bd97d67cc2e1bac92d0981"
+  integrity sha512-evhxyEnRGQo2Il88vTA4ENvebUbmuk9KzjE2GkF/pwzDnhMv1QIEV6BxU9GCerV8wlHwjohZ0pLS7AkS7QdvBw==
   dependencies:
     "@ethersproject/abi" "^5.7.0"
     "@ethersproject/abstract-provider" "^5.7.0"
@@ -798,7 +798,7 @@ alchemy-sdk@^2.10.1:
     "@ethersproject/units" "^5.7.0"
     "@ethersproject/wallet" "^5.7.0"
     "@ethersproject/web" "^5.7.0"
-    axios "^0.26.1"
+    axios "^1.6.5"
     sturdy-websocket "^0.2.1"
     websocket "^1.0.34"
 
@@ -887,19 +887,21 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
-axios@^0.26.1:
-  version "0.26.1"
-  resolved "https://registry.npmjs.org/axios/-/axios-0.26.1.tgz"
-  integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
-  dependencies:
-    follow-redirects "^1.14.8"
-
 axios@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/axios/-/axios-1.4.0.tgz"
   integrity sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==
   dependencies:
     follow-redirects "^1.15.0"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.6.5:
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
+  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
+  dependencies:
+    follow-redirects "^1.15.6"
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
@@ -1331,7 +1333,7 @@ ethers-multicall-provider@^3.0.2:
     ethers "^5.0.0"
     lodash "^4.17.0"
 
-ethers@5.7.2, ethers@^5.0.0:
+ethers@5.7, ethers@^5.0.0:
   version "5.7.2"
   resolved "https://registry.npmjs.org/ethers/-/ethers-5.7.2.tgz"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -1485,10 +1487,15 @@ find-up@^4.0.0:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
 
-follow-redirects@^1.14.8, follow-redirects@^1.15.0:
+follow-redirects@^1.15.0:
   version "1.15.2"
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.2.tgz"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
+
+follow-redirects@^1.15.6:
+  version "1.15.6"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
+  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-each@^0.3.3:
   version "0.3.3"

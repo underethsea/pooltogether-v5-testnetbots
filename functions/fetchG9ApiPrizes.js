@@ -72,4 +72,5 @@ const FetchG9ApiPrizes = async (chain, prizePool, draw) => {
 
 
 // Example usage
- FetchG9ApiPrizes(11155420,"0x31547d3c38f2f8dc92421c54b173f3b27ab26ebb",15)
+// FetchG9ApiPrizes(11155420,"0x31547d3c38f2f8dc92421c54b173f3b27ab26ebb",15)
+module.exports = {FetchG9ApiPrizes}

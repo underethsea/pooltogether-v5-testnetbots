@@ -2,7 +2,7 @@ require("../env-setup.js")
 const CONFIG = {
   // General Constants
   CHAINNAME: "OPSEPOLIA", // Name of the blockchain network
-  CHAINID: 11155420, // Chain ID for Optimism
+  CHAINID: 11155420,
   WALLET: process.env.WALLET, // Signing wallet address
   PRIZEPOOL: "0x31547D3c38F2F8dC92421C54B173F3B27Ab26EbB", // Address of the prize pool
 
@@ -12,12 +12,12 @@ const CONFIG = {
 
   // Timing Configuration for looping claimer and liquidator apps
   // retries will be a random time between min and max
-  minTimeInMilliseconds: 5 * 60 * 1000, // Minimum polling interval (5 * 60 = 5 minutes)
-  maxTimeInMilliseconds: 12 * 60 * 1000, // Maximum polling interval (12 * 60 = 12 minutes)
+  minTimeInMilliseconds: 55 * 60 * 1000, // Minimum polling interval (5 * 60 = 5 minutes)
+  maxTimeInMilliseconds: 85 * 60 * 1000, // Maximum polling interval (12 * 60 = 12 minutes)
 
   // Claimer Configuration
-  USEAPI: "pooltime", // "none" or "pooltime" or "g9"
-  TIERSTOCLAIM: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  USEAPI: "g9", // "none" or "pooltime" or "g9"
+  TIERSTOCLAIM: [0, 1, 2, 3, 4, 5, 6, 7, 8],
   TXDELAY: 10000, // Delay between transactions in milliseconds
   MINPROFIT: 0.03, // Minimum acceptable profit in $ for a claim transaction
   MINPROFITPERCENTAGE: 1.001, // Minimum profit percentage for acceptance, 1.01 = 101%
@@ -31,8 +31,8 @@ const CONFIG = {
   // Liquidator Configuration
   slippage: 5, // Slippage tolerance for transactions (basis points)
   maxGas: 600000, // Estimated gas amount per transaction
-  profitThreshold: 0.04, // Profit threshold in $ for considering a transaction
-  profitPercentage: 1.002, // Required profit percentage over cost
+  profitThreshold: -4.04, // Profit threshold in $ for considering a transaction
+  profitPercentage: .002, // Required profit percentage over cost
   ONLYLIQUIDATE: [], // array of pairs to liquidate
   DONTLIQUIDATE: [], // array of pairs to exclude
 
@@ -50,7 +50,11 @@ const CONFIG = {
   SECOND_CLAIM_WINDOW_OPEN: 22,
   SECOND_CLAIM_WINDOW_CLOSED: 24,
   BLACKLIST: [],
+
+  // DrawAuction Config
+  RNGRETRY: 90,// seconds to retry
 };
+Object.freeze(CONFIG)
 
 module.exports = { CONFIG };
 

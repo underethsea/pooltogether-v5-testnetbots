@@ -15,8 +15,8 @@ const { GeckoIDPrices } = require("./utilities/geckoFetch.js");
 const { GetPricesForToken } = require("./utilities/1inch.js");
 const { CollectRewards } = require("./collectRewards.js");
 //const settings = require('./constants/liquidator-config');
-
 const { minTimeInMilliseconds, maxTimeInMilliseconds, useCoinGecko } = CONFIG;
+
 
 // covalent, not accurate to get twab players
 // const FetchPlayers = require("./utilities/players.js");

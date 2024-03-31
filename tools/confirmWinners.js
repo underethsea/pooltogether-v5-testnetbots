@@ -29,20 +29,18 @@ const winners = [
 const prizeIndicesBeingClaimed =  [ [ 10, 83, 127 ]]
 
 */
+
 const vault = "0x8f8484f30f7a72c8059e6bd709f898606e38deda"
-const tier =  0
-const winners =  [
-  '0xC508d3D27fedD9C6a6d0D167c4d50c4B12E92338',
-  '0xdc9d55110bA8eD9c483E1077a35022e40A2F4a48',
-  '0xFBf00065a5f8Ef61B4EAf2b2003D4aF5E3017A5d',
-  '0x82E8C437299D564eE36A5f7ACC82d80F303e7Cb4',
-  '0xEfc4E91801704AC954f48362a5747CEa6D641e55',
-  '0x04B9c0C99F77d909ACB38b7c5f737A19F60d55F6'
+const tier = "1"
+const winners = [
+  '0x9a7D6d7B4930376eCf32622f702FF6abA78860fF',
+  '0x8Ca2b5c76DEDbEfFc2B1372299953EA861F0dC52',
+  '0x0347Ce85eF5c800b85541dcC6851218adc87F1AA',
+  '0x3dbF53d2074e1a13aF72e8F4cFD660520b778053'
 ]
-
-
-const prizeIndicesBeingClaimed = [ [ 52 ], [ 33 ], [ 41 ], [ 47 ], [ 14 ], [ 43 ] ]
-
+const prizeIndicesBeingClaimed = [ [ 1 ], [ 3 ], [ 2 ], [ 3 ] ]
+//fee recipient 0xE5860FF1c57DDCEF024Cb43B37b8A20bfE4c9822
+//min fee 0
 
 
 confirmWinner(vault, winners, tier, prizeIndicesBeingClaimed);

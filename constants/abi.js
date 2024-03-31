@@ -11,7 +11,7 @@ const VAULT = require('./abis/vault');
 const ERC20 = require('./abis/erc20');
 const RNG = require('./abis/rng')
 const DRAWMANAGER = require('./abis/drawmanager')
-
+const GASORACLE = require('./abis/gasoracle')
 const ABI = {
   TOKENFAUCET: TOKENFAUCET,
   TWABCONTROLLER: TWABCONTROLLER,
@@ -26,6 +26,7 @@ const ABI = {
   ERC20: ERC20,
   RNG: RNG,
   DRAWMANAGER: DRAWMANAGER,
+  GASORACLE: GASORACLE,
 };
 
 module.exports = { ABI };

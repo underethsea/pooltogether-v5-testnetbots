@@ -1,7 +1,7 @@
 
 // const { CONTRACTS, ADDRESS, PROVIDERS } = require("./constants/index.js")
 const { ADDRESS } = require("./constants/address")
-const {WS_PROVIDERS, PROVIDERS } = require("./constants/providers")
+const { WS_PROVIDERS, PROVIDERS } = require("./constants/providers")
 const { CONTRACTS } = require("./constants/contracts")
 const { CONFIG } = require("./constants/config")
 const { TOPICS } = require("./constants/events")
@@ -15,6 +15,8 @@ const chain = CONFIG.CHAINNAME
 const chainId = CONFIG.CHAINID
 const prizepool = ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL
 const {FoundryPrizeWinsToDb} = require("./functions/foundryPrizeWinsToDb.js")
+
+const LISTENPROVIDER = PROVIDERS[chain]
 
 const FILTERS = {
 // draw awarded
@@ -40,7 +42,7 @@ const FILTERS = {
 
 async function listen() {
     console.log("listening for complete award and claim events")
-     PROVIDERS[chain].on(FILTERS.DRAWAWARDED, (drawCompletedEvent) => {
+     LISTENPROVIDER.on(FILTERS.DRAWAWARDED, (drawCompletedEvent) => {
              console.log("draw completed event", drawCompletedEvent)
 		//try{DailyReport()}catch(e){console.log(e)}
 
@@ -50,7 +52,7 @@ async function listen() {
 //try{LiquidateNow()}catch(e){console.log(e)}     
           })
 //console.log(WS_PROVIDERS[chain])
-    PROVIDERS[chain].on(FILTERS.CLAIMEDPRIZE, (claimEvent) => {
+    LISTENPROVIDER.on(FILTERS.CLAIMEDPRIZE, (claimEvent) => {
       try {
           // console.log("prize claimed event ", claimEvent)
           const decodedLog =

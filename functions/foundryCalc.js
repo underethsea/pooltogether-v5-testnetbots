@@ -1,6 +1,6 @@
 // Assuming this is in a CommonJS module file
 const fs = require('fs');
-const BATCH_SIZE = 200;
+const BATCH_SIZE = 0; // 0 means no batching.  batching can now be done on the calculator
 
 // Dynamic import of the ES6 module
 async function loadES6Module() {
@@ -8,8 +8,13 @@ async function loadES6Module() {
     return module.default;
 }
 
-// Function to split array into batches
+// Function to split array into batches or return entire array if batchSize is 0
 function splitArrayIntoBatches(array, batchSize) {
+    // If batchSize is 0, return the entire array as a single batch
+    if (batchSize === 0) {
+        return [array];
+    }
+
     const batches = [];
     for (let i = 0; i < array.length; i += batchSize) {
         batches.push(array.slice(i, i + batchSize));
@@ -48,6 +53,7 @@ async function GetFoundryWinnersByVault(playersData,rpc) {
         const endTime = new Date();
         const elapsedTime = (endTime - startTime) / 1000; // Convert milliseconds to seconds
         console.log(`Total time taken: ${elapsedTime} seconds`);
+console.log(aggregatedResults)
         return aggregatedResults;
     } catch (error) {
         console.error(error);

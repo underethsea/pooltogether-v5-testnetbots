@@ -7,7 +7,6 @@ const {TOPICS} = require("../constants/events")
 const {GetChainName} = require("../constants/address")
 
 const GetRecentClaims = async (chain=CONFIG.CHAINID,startBlock=-150000,toBlock="latest") => {
-
 // console.log("claims for chain",chain," name ",GetChainName(chain))
 
     const claimFilter = {

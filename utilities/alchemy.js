@@ -1,11 +1,13 @@
 const { Network, Alchemy } = require("alchemy-sdk");
 const sdk = require('api')('@alchemy-docs/v1.0#5duyw41qlfsv71w0');
 require('dotenv').config(); // Adjust the path as needed to load your .env file
-
+const { CONFIG } = require("../constants/config")
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
+let net
+if(CONFIG.CHAINID === 10){net = Network.OPT_MAINNET}else if (CONFIG.CHAINID===11155420){net = Network.OPT_SEPOLIA}
 const settings = {
   apiKey: process.env.ALCHEMY_KEY, // Replace with your Alchemy API Key.
-  network: Network.OPT_MAINNET, // Replace with your network.
+  network: net
 };
 
 const alchemy = new Alchemy(settings);

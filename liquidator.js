@@ -11,7 +11,7 @@ const { web3GasEstimate } = require("./utilities/web3");
 const { AlchemyTransactionReceipt } = require("./utilities/alchemy");
 const { GetPricesForToken } = require("./utilities/1inch");
 const { BuildTxForSwap } = require("./utilities/1inchSwap.js");
-
+const { GasEstimate } = require("./utilities/gas.js")
 const ethers = require("ethers");
 const chalk = require("chalk");
 
@@ -20,6 +20,7 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const prizeTokenSymbol = ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.SYMBOL
 const {
   useCoinGecko,
   slippage,
@@ -567,17 +568,26 @@ if(allUndefined){ console.log("NO GECKO IDS in constants/address.js")}
               CONFIG.CHAINNAME
             ].interface.encodeFunctionData(functionName, args);
 
+
 if (maxToSendWithSlippage.gt(walletPrizeTokenBalance)) {
               console.log("not enough prize token to estimate and send liquidation");
               continue;
-            }else{console.log("enough to estimate",maxToSendWithSlippage.toString(),walletPrizeTokenBalance.toString())}
+            }else{
+
+//console.log("enough to estimate",maxToSendWithSlippage.toString(),walletPrizeTokenBalance.toString())
+}
             // calculate total gas cost in wei
-            web3TotalGasCost = await web3GasEstimate(
+            /*web3TotalGasCost = await web3GasEstimate(
               data,
               CONFIG.CHAINID,
               poolFromAddress,
               ADDRESS[CONFIG.CHAINNAME].LIQUIDATIONROUTER
-            );
+            );*/
+const method = functionName
+
+web3TotalGasCost = await  GasEstimate(CONTRACTS.LIQUIDATIONROUTERSIGNER[
+              CONFIG.CHAINNAME
+            ], method, args, ".001", ".001");
 
             console.log(
               "Gas Estimate " + Number(web3TotalGasCost) / 1e18 + " ETH"
@@ -773,7 +783,7 @@ if (maxToSendWithSlippage.gt(walletPrizeTokenBalance)) {
 
             console.log(
               poolOutFormatted.toFixed(4),
-              " POOL ($",
+              prizeTokenSymbol +" ($",
               poolValue.toFixed(2),
               ") for ",
               maxOutFormatted.toFixed(4),
@@ -830,7 +840,7 @@ if (maxToSendWithSlippage.gt(walletPrizeTokenBalance)) {
                 bestOptionOut,
                 maxToSendWithSlippage,
                 unixTimestamp,
-                { maxPriorityFeePerGas: "1000011", gasLimit: "700000" }
+                { maxPriorityFeePerGas: "1000001", gasLimit: "700000" }
               );
               /*
             tx = await CONTRACTS.LIQUIDATIONROUTERSIGNER[
@@ -865,7 +875,7 @@ if (maxToSendWithSlippage.gt(walletPrizeTokenBalance)) {
             const alchemyReceipt = await AlchemyTransactionReceipt(
               txReceipt.transactionHash
             );
-
+console.log("alchemy receipt",alchemyReceipt)
             const L1transactionCost =
               Number(alchemyReceipt.result.l1Fee) / 1e18;
             console.log(

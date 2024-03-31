@@ -31,7 +31,7 @@ async function FoundryPrizeWinsToDb(chainId, block = "latest") {
     tierPrizeValues,
     prizesForTier
   } = await GetPrizePoolData(block);
-
+console.log("last awarded draw id",lastDrawId)
   console.log("");
   await AddDraw(
     chainId,
@@ -128,5 +128,5 @@ function groupPlayersByVaultForFoundry(chain,prizePool,players) {
 }
 
 
-FoundryPrizeWinsToDb(11155420)
+//FoundryPrizeWinsToDb(11155420)
 module.exports = {FoundryPrizeWinsToDb}

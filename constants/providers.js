@@ -19,14 +19,15 @@ const opGoerliEndpoint = "https://opt-goerli.g.alchemy.com/v2/" + process.env.AL
 const opEndpoint =  "https://opt-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY
 const mainnetEndpoint = "https://eth-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY
 const ws_opEndpoint = "wss://opt-mainnet.g.alchemy.com/v2/" +  process.env.ALCHEMY_KEY
-// const opSepoliaEndpoint = "https://sepolia.optimism.io"
+//const opSepoliaEndpoint = "https://sepolia.optimism.io"
 const opSepoliaEndpoint = "https://opt-sepolia.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY
+const opSepoliaWebsocketEndpoint = "wss://opt-sepolia.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY
 //const mainnetEndpoint = "https://eth.llamarpc.com"
 
-/*const WS_PROVIDERS = {
-    OPTIMISM: new ethers.providers.WebSocketProvider(ws_opEndpoint)
+const WS_PROVIDERS = {
+    OPSEPOLIA: new ethers.providers.WebSocketProvider(opSepoliaWebsocketEndpoint)
 }
-*/
+
 const PROVIDERS = {
     MAINNET: new ethers.providers.JsonRpcProvider(mainnetEndpoint),
     OPSEPOLIA: new ethers.providers.JsonRpcProvider(opSepoliaEndpoint),
@@ -50,5 +51,5 @@ const wally = new ethers.Wallet(process.env.PRIVATE_KEY,PROVIDERS[CONFIG.CHAINNA
 const SIGNER = wally.connect(PROVIDERS[CONFIG.CHAINNAME]);
 const MAINNETSIGNER = wally.connect(PROVIDERS["MAINNET"])
 //console.log("signer",SIGNER)
-module.exports = {PROVIDERS, SIGNER , MAINNETSIGNER}
+module.exports = {PROVIDERS, SIGNER , MAINNETSIGNER, WS_PROVIDERS}
 

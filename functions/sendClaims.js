@@ -8,8 +8,9 @@ const chalk = require("chalk");
 const ethers = require("ethers");
 const { BuildTxForSwap } = require("../utilities/1inchSwap.js");
 const { AlchemyTransactionReceipt } = require("../utilities/alchemy");
-const { web3GasEstimate } = require("../utilities/web3");
+//const { web3GasEstimate } = require("../utilities/web3");
 const { GetRecentClaims } = require("./getRecentClaims");
+const { GasEstimate } = require("../utilities/gas.js")
 
 const section = chalk.hex("#47FDFB");
 
@@ -229,13 +230,15 @@ const SendClaims = async (
     const data = contract.interface.encodeFunctionData(functionName, args);
 
     // calculate total gas cost in wei
-    const web3TotalGasCost = await web3GasEstimate(
+const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"claimPrizes",args,".001",".001")
+
+/*    const web3TotalGasCost = await web3GasEstimate(
       data,
       CONFIG.CHAINID,
       CONFIG.WALLET,
       ADDRESS[CONFIG.CHAINNAME].CLAIMER
     );
-
+*/
     const web3TotalGasCostUSD =
       (Number(web3TotalGasCost).toFixed(2) * ethPrice) / 1e18;
 
@@ -454,7 +457,7 @@ try{
               gasLimit: BigInt(
                 500000 + 169000 * (prizeIndices.flat().length - 1)
               ),
-              maxPriorityFeePerGas: "1010000",
+              maxPriorityFeePerGas: "1000001",
             }
           );
           receipt = await tx.wait();
