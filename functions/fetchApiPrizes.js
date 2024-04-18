@@ -1,10 +1,10 @@
 const fetch = require("cross-fetch");
 const {CONFIG} = require("../constants/config")
-
+const { ADDRESS} = require("../constants/address")
 const FetchApiPrizes = async (chain, draw, tiersToClaim) => {
 //  console.log("tiers to claim",tiersToClaim)
 try{
-  const url = "https://poolexplorer.xyz/" + chain + "-" + CONFIG.PRIZEPOOL + "-draw" + draw;
+  const url = "https://poolexplorer.xyz/" + chain + "-" +  ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL + "-draw" + draw;
   //console.log(url)
   const fetchPrizes = await fetch(url);
   const prizesResult = await fetchPrizes.json();

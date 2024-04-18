@@ -1,6 +1,6 @@
 // Assuming this is in a CommonJS module file
 const fs = require('fs');
-const BATCH_SIZE = 0; // 0 means no batching.  batching can now be done on the calculator
+const BATCH_SIZE = 500; // 0 means no batching.  batching can now be done on the calculator
 
 // Dynamic import of the ES6 module
 async function loadES6Module() {
@@ -22,8 +22,11 @@ function splitArrayIntoBatches(array, batchSize) {
     return batches;
 }
 // Define a function to run winner calculation for each set of parameters
-async function GetFoundryWinnersByVault(playersData,rpc) {
-    try {
+async function GetFoundryWinnersByVault(playersData,tiers,rpc) {
+   
+const batchToTier = tiers < 6 ? BATCH_SIZE : tiers === 7 ? parseInt(BATCH_SIZE / 3.5) : parseInt(BATCH_SIZE/ 10)
+
+ try {
         const startTime = new Date();
         const aggregatedResults = [];
 
@@ -33,8 +36,8 @@ async function GetFoundryWinnersByVault(playersData,rpc) {
         for (const params of playersData) {
             const { vaultAddress, userAddresses } = params;
             // Check if batch processing is required
-            if (userAddresses.length > BATCH_SIZE) {
-                const addressBatches = splitArrayIntoBatches(userAddresses, BATCH_SIZE);
+            if (userAddresses.length > batchToTier) {
+                const addressBatches = splitArrayIntoBatches(userAddresses, batchToTier);
                     let batchCounter = 0
                     for (const batch of addressBatches) {
                     batchCounter++

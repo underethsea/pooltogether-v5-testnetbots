@@ -1,4 +1,5 @@
 const { Network, Alchemy } = require("alchemy-sdk");
+
 const sdk = require('api')('@alchemy-docs/v1.0#5duyw41qlfsv71w0');
 require('dotenv').config(); // Adjust the path as needed to load your .env file
 const { CONFIG } = require("../constants/config")
@@ -25,13 +26,10 @@ async function AlchemyGas() {
 
 //Required installation: npm install api --save
 async function AlchemyTransactionReceipt(hash) {
+console.log("getting alchemy receipt")
   return new Promise((resolve, reject) => {
-    sdk.ethGettransactionreceiptOptimism({
-      id: 1,
-      jsonrpc: '2.0',
-      params: [hash], // Pass the hash variable directly
-      method: 'eth_getTransactionReceipt'
-    }, { apiKey: 'Erv1WtDTYU3T6qBme4L4b6vNMypwtY9Y' })
+    alchemy.core
+  .getTransactionReceipt(hash)
       .then(({ data }) => {
         resolve(data); // Resolve the Promise with the data
       })

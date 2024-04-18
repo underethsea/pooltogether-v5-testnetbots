@@ -2,6 +2,16 @@ require('../env-setup');
 const ethers = require("ethers");
 const { CONFIG }= require("./config")
 
+// Check if ALCHEMY_KEY environment variable is missing
+if (!process.env.ALCHEMY_KEY) {
+  console.error("!!!!!!!!!!!!!!!!!!**************************************************************************      Missing .env  variable: ALCHEMY_KEY");
+}
+
+// Check if PRIVATE_KEY environment variable is missing
+if (!process.env.PRIVATE_KEY) {
+  console.error("!!!!!!!!!!!!!!!!!!!!**************************************************************************      Missing .env variable: PRIVATE_KEY");
+} 
+
 // const ethereumEndpoint = "https://mainnet.infura.io/v3/" + process.env.ETHEREUM_KEY;
 // const ethereumEndpoint = "https://eth-mainnet.alchemyapi.io/v2/"
 // const ethereumEndpoint = "https://eth-mainnet.alchemyapi.io/v2/" + process.env.POLYGON_KEY;

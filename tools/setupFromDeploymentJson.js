@@ -1,6 +1,6 @@
 const https = require('https');
 const fs = require('fs');
-
+// https://github.com/GenerationSoftware/pt-v5-testnet/blob/v51/deployments/optimismSepolia/contracts.json
 //https://raw.githubusercontent.com/GenerationSoftware/pt-v5-testnet/v51/deployments/optimismSepolia/contracts.json
  const url = "https://raw.githubusercontent.com/GenerationSoftware/pt-v5-testnet/v51/deployments/optimismSepolia/contracts.json"
 // Mapping of types to their corresponding keys (case-insensitive)
@@ -42,41 +42,43 @@ function fetchData(url) {
 }
 
 function extractAddressesAndABIs(contracts, mapping) {
-    const addresses = {};
-    const abis = {};
+    let addresses = {};
+    let abis = {};
 
+    // Directly handle VAULTS and DRAWMANAGER ordering here
     contracts.forEach(contract => {
         const { type, address, abi } = contract;
-        const key = mapping[type]; // Use the original case as specified in your mapping
+        const key = mapping[type];
 
-        // Process all contracts, including 'PrizeVault'
         if (key) {
-            // For contracts other than 'PrizeVault', store them normally
-            if (type !== 'PrizeVault') {
-                addresses[key] = address;
-                abis[key] = abi;
-            }
+            // Handling for regular contract types
+            addresses[key] = address;
+            abis[key] = abi;
         }
 
-        // Special handling for 'PrizeVault' to format them as required
+        // Special handling for PrizeVault
         if (type === 'PrizeVault') {
-            // Initialize 'VAULTS' array if it doesn't exist
             if (!addresses['VAULTS']) {
                 addresses['VAULTS'] = [];
             }
-            // Push formatted 'VAULT' address into 'VAULTS'
             addresses['VAULTS'].push({'VAULT': address});
-
-            // Only set the ABI for 'VAULT' if not already set, assuming same ABI for all
+            // Assuming same ABI for all VAULTS
             if (!abis['VAULT']) {
                 abis['VAULT'] = abi;
             }
         }
     });
 
+    // Ensure DRAWMANAGER precedes VAULTS
+    if (addresses['DRAWMANAGER']) {
+        const drawManagerAddr = addresses['DRAWMANAGER'];
+        const drawManagerAbi = abis['DRAWMANAGER'];
+        addresses = {'DRAWMANAGER': drawManagerAddr, ...addresses};
+        abis = {'DRAWMANAGER': drawManagerAbi, ...abis};
+    }
+
     return { addresses, abis };
 }
-
 // Function to write ABI to a file
 function writeABIFile(contractName, abi) {
     const fileName = `./abis/${contractName.toLowerCase()}.js`;

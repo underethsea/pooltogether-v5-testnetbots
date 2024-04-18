@@ -1,11 +1,9 @@
 const fs = require('fs');
 const { PROVIDERS } =  require( "../constants/providers")
-
-const { ADDRESS }= require( "../constants/address")
-
+const { ADDRESS, STARTBLOCK }= require( "../constants/address")
 const { CONFIG } = require( "../constants/config")
 const { CONTRACTS } = require("../constants/contracts")
-
+const { TOPICS } = require("../constants/events")
 async function GetClaimEvents(chain) {
     const chainName = CONFIG.CHAINNAME;
     const contracts = CONTRACTS;
@@ -15,7 +13,7 @@ async function GetClaimEvents(chain) {
         const claimFilter = {
             address: ADDRESS[chainName].PRIZEPOOL,
             topics: [
-                "0x81d4e3306aa30f56dc9c3949abd8c27539b445f9ef380425f39f3f7114888e4f",
+                TOPICS.CLAIMEDPRIZE
             ],
             fromBlock,
             toBlock,
@@ -31,21 +29,21 @@ return claimLogs.map(claim => {
                 winner: args.winner,
                 tier: args.tier,
                 payout: args.payout,
-                fee: args.fee,
-                feeRecipient: args.feeRecipient,
+                fee: args.claimReward,
+                feeRecipient: args.claimRewardRecipient,
                 index: args.prizeIndex,
                 txHash: claim.transactionHash,
-		        blockNumber: claim.blockNumber, // Accessing the block number
-
+		blockNumber: claim.blockNumber, // Accessing the block number
             };
         });
     };
 
     // Dynamic block range creation
-    const startBlock = 111036195;
-    const blockInterval = 1000000;
+    const startBlock = STARTBLOCK[CONFIG.CHAINNAME].PRIZEPOOL;
+    const blockInterval = 50000;
     const currentBlock = await PROVIDERS[chainName].getBlockNumber();
-    let blockRanges= [];
+    let blockRanges= []
+    console.log("start block",startBlock,"current block",currentBlock);
     for (let fromBlock = startBlock; fromBlock < currentBlock; fromBlock += blockInterval) {
         let toBlock = Math.min(fromBlock + blockInterval - 1, currentBlock);
         blockRanges.push([fromBlock, toBlock]);

@@ -39,7 +39,7 @@ const SendClaims = async (
   contract,
   drawId,
   vaultWins,
-  maxFee,
+  //maxFee,
   prizeTokenPrice,
   ethPrice
 ) => {
@@ -134,20 +134,20 @@ const SendClaims = async (
     // console.log(winners)
     // console.log(prizeIndices)
 
-    let minFeeToClaim = await CONTRACTS.CLAIMER[CONFIG.CHAINNAME].functions[
-      "computeTotalFees(uint8,uint256)"
-    ](tier, prizeIndices.flat().length);
+
+    let minFeePerPrizeToClaim = await CONTRACTS.CLAIMER[CONFIG.CHAINNAME].computeFeePerClaim(tier, prizeIndices.flat().length);
     //minFeeToClaim = minFeeToClaim.div(prizeIndices.flat().length)
     //minFeeToClaim = ethers.BigNumber.from(minFeeToClaim); // ensure it's a BigNumber
 
-    const totalIndices = [].concat(...prizeIndices).length;
-    const totalIndicesBN = ethers.BigNumber.from(totalIndices.toString()); // converting to BigNumber
-    minFeeToClaim = ethers.BigNumber.from(minFeeToClaim.toString());
+    //const totalIndices = [].concat(...prizeIndices).length;
+    //const totalIndicesBN = ethers.BigNumber.from(totalIndices.toString()); // converting to BigNumber
+    //minFeeToClaim = ethers.BigNumber.from(minFeeToClaim.toString());
 
     // console.log(minFeeToClaim, typeof minFeeToClaim, minFeeToClaim._isBigNumber);
 
-    minFeeToClaim = minFeeToClaim.div(totalIndicesBN);
-    console.log("");
+    //minFeeToClaim = minFeeToClaim.div(totalIndicesBN);
+    
+console.log("");
     console.log(section("   ---- transaction parameters -----"));
 
     if (prizeIndices.flat().length < originIndiceLength) {
@@ -159,7 +159,7 @@ const SendClaims = async (
     console.log("winners ", winners);
     console.log("prize indices being claimed", prizeIndices);
     console.log("fee recipient", feeRecipient);
-    console.log("min fee", minFeeToClaim.toString());
+    console.log("min fee", minFeePerPrizeToClaim.toString());
 
     //console.log("gas limit with +2%",gasLimitWithBuffer)
     console.log(
@@ -179,7 +179,7 @@ const SendClaims = async (
       winners,
       prizeIndices,
       feeRecipient,
-      minFeeToClaim
+      minFeePerPrizeToClaim
     );
 
     //console.log("fee estimate",feeEstimate)
@@ -223,14 +223,14 @@ const SendClaims = async (
       winners,
       prizeIndices,
       feeRecipient,
-      minFeeToClaim,
+      minFeePerPrizeToClaim,
     ];
 
     // Encode the function call
     const data = contract.interface.encodeFunctionData(functionName, args);
 
     // calculate total gas cost in wei
-const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"claimPrizes",args,".001",".001")
+const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"claimPrizes",args,CONFIG.PRIORITYFEE)
 
 /*    const web3TotalGasCost = await web3GasEstimate(
       data,
@@ -286,8 +286,8 @@ const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"
         tier,
         " fee recipient",
         feeRecipient,
-        " min fee ",
-        Number(minFeeToClaim)
+        " min fee per prize",
+        Number(minFeePerPrizeToClaim)
       );
       //console.log("winners ",winners)
       //console.log("prize indices being claimed",prizeIndices)
@@ -357,7 +357,7 @@ const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"
           tier,
           finalWinners,
           finalPrizeIndices,
-          minFeeToClaim,
+          minFeePerPrizeToClaim,
           newCalldata,
           //dataFor1Inch.data
         ];
@@ -370,14 +370,15 @@ const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"
         ].interface.encodeFunctionData(hofunctionName, hoargs);
 
         // calculate total gas cost in wei
-
+/*
         const howeb3TotalGasCost = await web3GasEstimate(
           hodata,
           CONFIG.CHAINID,
           CONFIG.WALLET,
           ADDRESS[CONFIG.CHAINNAME].PRIZESANTA
         );
-
+*/
+const howeb3TotalGasCost = await GasEstimate(CONTRACTS.PRIZESANTASIGNER[CONFIG.CHAINNAME],hofunctionName,hoargs,CONFIG.PRIORITYFEE)
         const howeb3TotalGasCostUSD =
           (Number(howeb3TotalGasCost).toFixed(2) * ethPrice) / 1e18;
 
@@ -407,7 +408,7 @@ const web3TotalGasCost = await GasEstimate(CONTRACTS.CLAIMER[CONFIG.CHAINNAME],"
               tier,
               finalWinners,
               finalPrizeIndices,
-              minFeeToClaim.toString(),
+              minFeePerPrizeToClaim.toString(),
               newCalldata,
               {
                 gasLimit: BigInt(
@@ -452,7 +453,7 @@ try{
             finalWinners,
             finalPrizeIndices,
             feeRecipient,
-            minFeeToClaim,
+            minFeePerPrizeToClaim,
             {
               gasLimit: BigInt(
                 500000 + 169000 * (prizeIndices.flat().length - 1)
@@ -571,16 +572,17 @@ function checkIfWinHasBeenClaimed(
 }
 
 async function processReceipt(receipt, ethPrice, prizeTokenPrice) {
+let L2transactionCost,alchemyReceipt,L1transactionCost,totalTransactionCost
 try{
 console.log("tx hash",receipt.transactionHash)
-  const L2transactionCost =
+  L2transactionCost =
     Number(receipt.gasUsed * receipt.effectiveGasPrice) / 1e18;
 
-  const alchemyReceipt = await AlchemyTransactionReceipt(
+  alchemyReceipt = await AlchemyTransactionReceipt(
     receipt.transactionHash
   );
 
-  const L1transactionCost = Number(alchemyReceipt.result.l1Fee) / 1e18;
+  L1transactionCost = Number(alchemyReceipt.result.l1Fee) / 1e18;
 
   console.log("L2 Gas fees (in ETH) " + L2transactionCost);
   console.log("L1 Gas fees (in ETH) " + L1transactionCost);
@@ -595,7 +597,8 @@ console.log("tx hash",receipt.transactionHash)
       totalTransasactionCostDollar +
       ")"
   );
-
+}catch(e){console.log("error with alchemy receipt",e)}
+try{
   // todo not right
   console.log(
     // "tx",
@@ -609,7 +612,7 @@ console.log("tx hash",receipt.transactionHash)
   logs.forEach((log) => {
     if (log.name === "ClaimedPrize") {
       const payout = parseInt(log.args.payout);
-      const fee = parseInt(log.args.fee);
+      const fee = parseInt(log.args.claimReward);
       totalPayout += payout;
       totalFee += fee;
       console.log(

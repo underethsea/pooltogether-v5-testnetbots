@@ -16,8 +16,8 @@ prizepool = prizepool.toLowerCase()
                 AND payout = $7 
                 AND miner = $8 
                 AND fee = $9 
-                AND tier = $10 
-                AND index = $11
+                AND tier = $10
+                AND index = $11 
                 AND prizepool = $12
         `;
         const existingClaim = await DB.oneOrNone(checkClaimExistsQuery, [
@@ -57,8 +57,8 @@ prizepool = prizepool.toLowerCase()
             claim.miner,
             claim.fee.toString(),
             claim.tier,
-            claim.index,
-            prizepool
+          claim.index,  
+          prizepool
         ]);
      console.log(network,"claim added to db, tx ",claim.hash," winner ",claim.winner," tier/index ",claim.tier,"/",claim.index,"amt",claim.payout.toString())
     } catch (error) {
@@ -221,8 +221,8 @@ prizepool = prizepool.toLowerCase()
   async function AddDraw(
     network,
     draw,
-    startedAt,
-    periodSeconds,
+    //startedAt,
+    //periodSeconds,
     tiers,
     //grandPrizePeriod,
     tierValues,
@@ -246,15 +246,15 @@ prizePool = prizePool.toLowerCase()
         checkingForDraw = [];
       }
 
-      const startedAtTimestamp = new Date(startedAt * 1000);
+      //const startedAtTimestamp = new Date(startedAt * 1000);
 
       const addDrawQuery =
-        "INSERT INTO draws (network,draw,startedAt,periodSeconds,tiers, tierValues, prizeIndices, block, prizePool) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+        "INSERT INTO draws (network,draw,tiers, tierValues, prizeIndices, block, prizePool) VALUES ($1, $2, $3, $4, $5, $6, $7)";
       console.log("add draw query ", addDrawQuery);
   console.log( network,
         draw,
-        startedAtTimestamp,
-        periodSeconds,
+       // startedAtTimestamp,
+       // periodSeconds,
         tiers,
         //grandPrizePeriod,
         tierValues,
@@ -264,8 +264,8 @@ prizePool = prizePool.toLowerCase()
       await DB.any(addDrawQuery, [
         network,
         draw,
-        startedAtTimestamp,
-        periodSeconds,
+       // startedAtTimestamp,
+       // periodSeconds,
         tiers,
         //grandPrizePeriod,
         tierValues,
@@ -282,6 +282,8 @@ prizePool = prizePool.toLowerCase()
   }
   async function AddWin(network, draw, vault, pooler, tier, indices, prizePool) {
 prizePool = prizePool.toLowerCase()
+pooler=pooler.toLowerCase()
+
       console.log("adddding ",network, draw, vault, pooler, tier, indices)
       
     try {

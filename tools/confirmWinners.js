@@ -29,16 +29,28 @@ const winners = [
 const prizeIndicesBeingClaimed =  [ [ 10, 83, 127 ]]
 
 */
-
-const vault = "0x8f8484f30f7a72c8059e6bd709f898606e38deda"
-const tier = "1"
-const winners = [
-  '0x9a7D6d7B4930376eCf32622f702FF6abA78860fF',
-  '0x8Ca2b5c76DEDbEfFc2B1372299953EA861F0dC52',
-  '0x0347Ce85eF5c800b85541dcC6851218adc87F1AA',
-  '0x3dbF53d2074e1a13aF72e8F4cFD660520b778053'
+const vault = "0x6d02b0ce229abee2f155248e66d8e090d3c86bb2"
+const tier = "5"
+const winners =  [
+  '0x966004a0f02B034288c3e1F540b5dFBD8717Da3c',
+  '0x50CAf7E5Ae02d95F204E42A83e4E597fc04C4CFA',
+  '0xC7624908FD5Abd6A2CD5A228ce580E93741b9E2C',
+  '0xAf19DE7f6aAf402C5974976709fa2a9457Ed3fdb',
+  '0x9a438d351217c26c569d8140190E1D8A6Ed545cF',
+  '0x1524768a24f12B2A4730cce79111EbEC1a254050',
+  '0xD42eFb5fEBC0A890aD6Dc9f43522a6E7e81Febed',
+  '0xfaf5a4296b8DE0570cB50e35D2C1bF2a1FcF473F',
+  '0x10A07df90c32B36459Ba5a409F347D2c027cB1E4',
+  '0x8EbB36f60Ee5bF12250ab85b15f5290298Bac28A'
 ]
-const prizeIndicesBeingClaimed = [ [ 1 ], [ 3 ], [ 2 ], [ 3 ] ]
+const prizeIndicesBeingClaimed = [
+  [ 118 ],      [ 576 ],
+  [ 703 ],      [ 984 ],
+  [ 978 ],      [ 772, 973 ],
+  [ 626, 921 ], [ 962 ],
+  [ 224 ],      [ 57 ]
+]
+
 //fee recipient 0xE5860FF1c57DDCEF024Cb43B37b8A20bfE4c9822
 //min fee 0
 

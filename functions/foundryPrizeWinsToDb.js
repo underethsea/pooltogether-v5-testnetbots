@@ -25,8 +25,8 @@ async function FoundryPrizeWinsToDb(chainId, block = "latest") {
     lastDrawId,
     numberOfTiers,
     tierTimestamps,
-    lastCompletedDrawStartedAt,
-    drawPeriodSeconds,
+//    lastCompletedDrawStartedAt,
+  //  drawPeriodSeconds,
     //grandPrizePeriod,
     tierPrizeValues,
     prizesForTier
@@ -36,8 +36,8 @@ console.log("last awarded draw id",lastDrawId)
   await AddDraw(
     chainId,
     lastDrawId.toString(),
-    lastCompletedDrawStartedAt,
-    drawPeriodSeconds,
+  //  lastCompletedDrawStartedAt,
+  //  drawPeriodSeconds,
     numberOfTiers,
     //grandPrizePeriod,
     tierPrizeValues.map(value => +value),
@@ -70,7 +70,7 @@ const groupedResult = groupPlayersByVaultForFoundry(chainId,ADDRESS[CONFIG.CHAIN
 
 
 
-const winnersData = await GetFoundryWinnersByVault(groupedResult,PROVIDERS[CONFIG.CHAINNAME].connection.url);
+const winnersData = await GetFoundryWinnersByVault(groupedResult,numberOfTiers,PROVIDERS[CONFIG.CHAINNAME].connection.url);
 fs.writeFileSync('winners.json', JSON.stringify(winnersData, null, 2));
 //console.log(winnersData)
 //console.log(`Fetched winners for Tier ${tier}`);
@@ -101,9 +101,11 @@ fs.writeFile('consolidatedWinnersData.json', JSON.stringify(consolidatedArray, n
   }
 });
 
+let totalAdds = 0
 // Assuming consolidatedArray contains the data prepared for processing
 const addWinPromises = consolidatedArray.map(({ user, vault, tier, indices }) => {
   console.log(`Adding: User: ${user}, Vault: ${vault}, Tier: ${tier}, Indices: ${indices}`);
+  totalAdds += indices.length
   return AddWin(chainId, lastDrawId.toString(), vault, user, tier, indices, ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL);
 });
 
@@ -116,7 +118,7 @@ Promise.all(addWinPromises)
     console.error("An error occurred while processing winners:", error);
   });
 
-
+console.log("There were",totalAdds,"wins calculated")
 /*
     for (const [vault, pooler, tier, indices] of combinedArray) {
       console.log(

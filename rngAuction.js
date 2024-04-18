@@ -8,13 +8,12 @@ const { Multicall } = require("./utilities/multicall.js");
 const { GasEstimate } = require("./utilities/gas.js");
 
 // todo there is possible lapse where draw is not awarded and script still wants to finish
+// todo, possible reserve doesnt have enough to pay for RNG + finishDraw
 
 const RETRYTIME = CONFIG.RNGRETRY * 1000
-const rngPayable = ethers.utils.parseEther(".00004182");
-const rngProfitMargin = 0.94;
-const rngErrorMargin = 1.02; // 1.03 = 3%
-const maxSpendPercentage = 65; // 65 would mean the RNG cannot exceed spending 65% of the reserve because that could mean the relay could exceeding available funding
+
 const prizeTokenSymbol = ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.SYMBOL
+
 async function checkAndCompleteRng() {
   const callsMain = [
     CONTRACTS.DRAWMANAGER[CONFIG.CHAINNAME].canStartDraw(),
@@ -33,7 +32,7 @@ async function checkAndCompleteRng() {
     );
   } catch (e) {
     console.log("error getting auction status and reward fraction", e);
-  } 
+  }
 const openDrawClosesAt = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].drawClosesAt(openDrawId)
 const drawToAwardClosedAt = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].drawClosesAt(drawIdToAward)
 //console.log(`${Date.now()/1000} now ${drawToAwardClosedAt} closed at ${auctionDuration} auction time`)
@@ -90,11 +89,11 @@ const gasPrice = await PROVIDERS[CONFIG.CHAINNAME].getGasPrice()
       ),prizeTokenSymbol
     );
     // console.log("return for debug");return
+console.log("start award",startDrawAward/1e18,"estimate fee",estimateFee/1e18)
     if (startDrawAward.gt(estimateFee)) {
       console.log("Reward greater than ",
-        estimateFee / 1e18,prizeTokenSymbol,
-        " fee, lets go",
-        rngPayable / 1e18
+        estimateFee / 1e18,"ETH",
+        " fee, lets check gas cost"
       );
       try {
 
@@ -121,18 +120,19 @@ console.log("estimate",estimateRngTx.toString())*/
             value: estimateFee.toString(),
           },*/
         ];
-        let  web3TotalGasCost 
+        let  web3TotalGasCost
         try{
         web3TotalGasCost = await GasEstimate(
           CONTRACTS.RNGWITHSIGNER[CONFIG.CHAINNAME],
           "startDraw",
           args,
-          ".001",
-          ".001",
+          CONFIG.PRIORITYFEE,
           {value:estimateFee.toString()} // pass the fee value to send
         );}catch(e){console.log("error sending RNG, we will retry");setTimeout(checkAndCompleteRng, RETRYTIME);}
-if(web3TotalGasCost){
-        console.log("est gas", web3TotalGasCost / 1e18, "ETH");
+const totalStartDrawCost = web3TotalGasCost.add(estimateFee)
+
+if(startDrawAward.gt(totalStartDrawCost)){
+        //console.log("est gas", web3TotalGasCost / 1e18, "ETH");
         const rngTx = await CONTRACTS.RNGWITHSIGNER[CONFIG.CHAINNAME].startDraw(
           estimateFee.toString(),
           ADDRESS[CONFIG.CHAINNAME].DRAWMANAGER,
@@ -145,18 +145,19 @@ if(web3TotalGasCost){
             value: estimateFee.toString(),
           }
         );
-        console.log("pending tx confirmation....");
+        console.log("sending! pending tx confirmation....");
         const rngReceipt = await rngTx.wait();
         console.log("success tx hash ", rngReceipt.transactionHash);
         console.log("gas used ", rngReceipt.gasUsed.toString());
-      setTimeout(checkAndCompleteRng, RETRYTIME);}
+      setTimeout(checkAndCompleteRng, RETRYTIME);
+}else {console.log((totalStartDrawCost/1e18).toFixed(7),"fee + gas  still exceeds ",(startDrawAward/1e18).toFixed(7)," reward, will retry");setTimeout(checkAndCompleteRng, RETRYTIME/4);}
       } catch (e) {
         console.log(e);
       }
     } else {
-      console.log("NOT profitable with payable cost", rngPayable / 1e18,prizeTokenSymbol);
-      console.log("retrying in ", RETRYTIME/1000 ," seconds");
-      setTimeout(checkAndCompleteRng, RETRYTIME);
+      console.log("NOT profitable with payable cost")
+      console.log("retrying in ", RETRYTIME/1000/3 ," seconds");
+      setTimeout(checkAndCompleteRng, RETRYTIME/3);
     }
   } else {
     console.log("rng auction closed");
@@ -181,23 +182,24 @@ if(web3TotalGasCost){
         // console.log("finish tx gas", finishTxGas.toString());
         const gasEst = await GasEstimate(CONTRACTS.DRAWMANAGERWITHSIGNER[
           CONFIG.CHAINNAME
-        ],"finishDraw",[CONFIG.WALLET],".001",".001")
-        console.log("estimated gas cost ",gasEst/1e18)
-// todo add estimate fee
-        if(gasEst.lt(finishReward) || true){
+        ],"finishDraw",[CONFIG.WALLET],CONFIG.PRIORITYFEE)
+        //console.log("estimated gas cost ",gasEst/1e18)
+        // todo add estimate fee
+        if(gasEst.lt(finishReward)){
         const finishTx = await CONTRACTS.DRAWMANAGERWITHSIGNER[
           CONFIG.CHAINNAME
         ].finishDraw(CONFIG.WALLET, {
           maxPriorityFeePerGas: "1000000",
           maxFeePerGas: "1000000",
         });
-        console.log("pending tx confirmation....");
+        console.log("sending! pending tx confirmation....");
         const finishReceipt = await finishTx.wait();
         console.log("success tx hash ", finishReceipt.transactionHash);
         console.log("gas used ", finishReceipt.gasUsed.toString());}
         setTimeout(checkAndCompleteRng, RETRYTIME);
       } else {
-        setTimeout(checkAndCompleteRng, RETRYTIME);
+        console.log("finish draw gas exceed reward")
+        setTimeout(checkAndCompleteRng, RETRYTIME/3);
       }
     } else {
       if (drawIdToAward !== openDrawId) {
@@ -216,7 +218,8 @@ if(web3TotalGasCost){
           console.log(
             `Waiting for ${waitTime / 1000} seconds until the next draw closes.`
           );
-        }}
+        }else {console.log("retrying in ", RETRYTIME/1000 ," seconds");
+        setTimeout(checkAndCompleteRng, RETRYTIME);}}
       }
     }
   }

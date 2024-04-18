@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
 const { CONTRACTS } = require('../constants/contracts');
-const { CONFIG } = require('../constants/config');
+const { CONFIG} = require('../constants/config');
+const { ADDRESS } = require('../constants/address');
 const { Multicall } = require("../utilities/multicall");
-
-const BATCH_SIZE = 0; // 0 = no batching
+const BATCH_SIZE = 100; // 0 = no batching
 
 async function verifyWinners(network, prizePool, drawId) {
   const url = `https://poolexplorer.xyz/${network}-${prizePool}-draw${drawId}`;
@@ -28,7 +28,7 @@ async function verifyWinners(network, prizePool, drawId) {
           } else {
             console.log(`FALSE: Individual call for winner ${win.p} tier ${win.t} index ${index}`);
             falseCount++;
-          }}catch(e){console.log(`${e}`);console.log(`FALSE: Individual call for winner ${win.v}`);falseCount++}
+          }}catch(e){console.log(`${e}`);console.log(`FALSE: Individual call for winner  ${win.p} tier ${win.t} index ${index}`);falseCount++}
         } else {
           // Add to batch for Multicall
           batchCalls.push(call);
@@ -40,7 +40,7 @@ async function verifyWinners(network, prizePool, drawId) {
             // Process results
             results.forEach((result, resultIndex) => {
               if (result) {
-                console.log(`ok: Batch ${Math.ceil((falseCount + resultIndex + 1) / BATCH_SIZE)}, Call ${resultIndex + 1}`);
+//                console.log(`ok: Batch ${Math.ceil((falseCount + resultIndex + 1) / BATCH_SIZE)}, Call ${resultIndex + 1}`);
               } else {
                 console.log(`FALSE: Batch ${Math.ceil((falseCount + resultIndex + 1) / BATCH_SIZE)}, Call ${resultIndex + 1}`);
                 falseCount++;
@@ -64,4 +64,9 @@ async function verifyWinners(network, prizePool, drawId) {
 }
 
 // Example usage
-verifyWinners('11155420', '0x31547D3c38F2F8dC92421C54B173F3B27Ab26EbB', '68');
+async function go (){
+
+const drawId = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].getLastAwardedDrawId()
+await verifyWinners(CONFIG.CHAINID, ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL, drawId);
+}
+go()

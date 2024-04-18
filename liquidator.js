@@ -7,7 +7,7 @@ const { CONFIG } = require("./constants/config.js");
 const { GetLogs } = require("./utilities/getLogs.js");
 const { Multicall } = require("./utilities/multicall.js");
 const { GeckoIDPrices } = require("./utilities/geckoFetch.js");
-const { web3GasEstimate } = require("./utilities/web3");
+//const { web3GasEstimate } = require("./utilities/web3");
 const { AlchemyTransactionReceipt } = require("./utilities/alchemy");
 const { GetPricesForToken } = require("./utilities/1inch");
 const { BuildTxForSwap } = require("./utilities/1inchSwap.js");
@@ -107,6 +107,8 @@ async function go() {
       ...ADDRESS[CONFIG.CHAINNAME].BOOSTS,
     ];
 
+pairs = pairs.filter(pair => pair.LIQUIDATIONPAIR.toLowerCase() !== '0x0000000000000000000000000000000000000000');
+
     if (ONLYLIQUIDATE.length > 0) {
       pairs = pairs.filter((pair) =>
         ONLYLIQUIDATE.map((addr) => addr.toLowerCase()).includes(
@@ -145,7 +147,7 @@ if(allUndefined){ console.log("NO GECKO IDS in constants/address.js")}
 
     let prizeTokenPrice;
     if (useCoinGecko) {
-      prizeTokenPrice = combinedPrices[combinedPrices.length - 2];
+      prizeTokenPrice = combinedPrices[combinedPrices.length - 1];
     } else {
       prizeTokenPrice = await GetPricesForToken(
         ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.ADDRESS
@@ -587,7 +589,7 @@ const method = functionName
 
 web3TotalGasCost = await  GasEstimate(CONTRACTS.LIQUIDATIONROUTERSIGNER[
               CONFIG.CHAINNAME
-            ], method, args, ".001", ".001");
+            ], method, args, CONFIG.PRIORITYFEE);
 
             console.log(
               "Gas Estimate " + Number(web3TotalGasCost) / 1e18 + " ETH"
@@ -742,14 +744,15 @@ web3TotalGasCost = await  GasEstimate(CONTRACTS.LIQUIDATIONROUTERSIGNER[
                 CONFIG.CHAINNAME
               ].interface.encodeFunctionData(swapfunctionName, swapargs);
               // calculate total gas cost in wei
-
+/*
               const swapweb3TotalGasCost = await web3GasEstimate(
                 swapdata,
                 CONFIG.CHAINID,
                 ADDRESS[CONFIG.CHAINNAME].SWAPPER,
                 ADDRESS[CONFIG.CHAINNAME].SWAPPER
               );
-
+*/
+const swapweb3TotalGasCost = await GasEstimate(CONTRACTS.SWAPPERSIGNER[CONFIG.CHAINNAME],swapfunctionName,swapargs,CONFIG.PRIORITYFEE)
               console.log(
                 "SWAPPER Gas Estimate  " +
                   Number(swapweb3TotalGasCost) / 1e18 +
@@ -872,11 +875,13 @@ web3TotalGasCost = await  GasEstimate(CONTRACTS.LIQUIDATIONROUTERSIGNER[
             const L2transactionCost =
               Number(txReceipt.gasUsed * txReceipt.effectiveGasPrice) / 1e18;
 
-            const alchemyReceipt = await AlchemyTransactionReceipt(
+let alchemyReceipt,L1transactionCost,gasSpent,totalTransactionCost
+try{
+            alchemyReceipt = await AlchemyTransactionReceipt(
               txReceipt.transactionHash
             );
 console.log("alchemy receipt",alchemyReceipt)
-            const L1transactionCost =
+            L1transactionCost =
               Number(alchemyReceipt.result.l1Fee) / 1e18;
             console.log(
               "L2 Gas fees (in ETH) " +
@@ -894,7 +899,7 @@ console.log("alchemy receipt",alchemyReceipt)
                 totalTransasactionCostDollar
             );
 
-            const gasSpent = parseFloat(
+            gasSpent = parseFloat(
               ethers.utils.formatUnits(
                 txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice),
                 18
@@ -916,7 +921,7 @@ console.log("alchemy receipt",alchemyReceipt)
             // console.log("get tx",txReceipt.getTransaction)
 
             // txReceipt.logs.map((log,index)=>{console.log("log ",index," ",log,interface.parseLog(log))}
-
+}catch(e){console.log("error on alchemy receipt",e)}
             // more parsing than getting
             const logs = GetLogs(txReceipt, ABI.LIQUIDATIONPAIR);
             let poolSpent, amountReceived;
@@ -1021,8 +1026,22 @@ console.log("alchemy receipt",alchemyReceipt)
       // receivedString = ""
       // assetsReceived.forEach(asset=>receivedString+=asset.symbol + asset.amount + " , ")
       console.log(assetsReceived);
+      console.log(
+    "-------------------------------------------bot will run again in " +
+      parseInt(minTimeInMilliseconds / 60000) +
+      "min - " +
+      parseInt(maxTimeInMilliseconds / 60000) +
+      "min------------ "
+  );
     } else {
       console.log(section("No liquidations completed"));
+      console.log(
+    "-------------------------------------------bot will run again in " +
+      parseInt(minTimeInMilliseconds / 60000) +
+      "min - " +
+      parseInt(maxTimeInMilliseconds / 60000) +
+      "min------------ "
+  );
     }
   } else {
     console.log("liquidations are off while draw is being awarded");

@@ -55,7 +55,7 @@ async function go() {
     numberOfTiers,
     tierTimestamps,
     prizesForTier,
-    maxFee,
+    //maxFee,
     tierPrizeValues,
     tierRemainingLiquidites,
     reserve,
@@ -75,9 +75,9 @@ async function go() {
 
   console.log(section("----- contract data ------"));
 
-  maxFee.forEach((fee, index) => {
+  /*maxFee.forEach((fee, index) => {
     console.log("max fee for tier ", index, " -> ", parseInt(fee) / 1e18);
-  });
+  });*/
   // console.log("prizes for Tier ",prizesForTier)
 
   let newWinners;
@@ -125,7 +125,7 @@ console.log("won vs claimed",winVsClaimStats)
       claimerContract,
       lastDrawId,
       newWinners,
-      maxFee,
+      //maxFee,
       prizeTokenPrice,
       ethPrice
     );
@@ -162,7 +162,7 @@ function removeAlreadyClaimed(winners, claims, drawId) {
 
 // Increment claims for each tier
 relevantClaims.forEach((claim) => {
-  console.log(`Claim Tier: ${claim.tier}, Current Count: ${tierStats.claimedPrizesByTier[claim.tier] || 0}`);
+//  console.log(`Claim Tier: ${claim.tier}, Current Count: ${tierStats.claimedPrizesByTier[claim.tier] || 0}`);
   tierStats.claimedPrizesByTier[claim.tier] = (tierStats.claimedPrizesByTier[claim.tier] || 0) + 1;
 });
 

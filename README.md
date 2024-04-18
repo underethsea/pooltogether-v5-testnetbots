@@ -21,6 +21,8 @@ You will need
 
 `cp .env.example .env` to copy environment variable setup
 
+`cp constants/config.example.js constants/config.js` all of the configurations can be specified and changed here 
+
 put key for ALCHEMY in .env
 
 to create a wallet use `node tools/newWallet.js`
@@ -29,7 +31,7 @@ add wallet address and private key to .env
 
 you will need ETH gas on your new wallet. Alchemy has free faucets for testnets
 
-you will need the prize token to liquidate yield. for testnets you can use the faucet and drip to your wallet specified in config.js. do so by running `node tools/dripTestnet.js`
+you will need the prize token to liquidate yield. for testnets you can use the faucet and drip to your wallet specified in .env.  do so by running `node tools/dripTestnet.js`
  
 you will need to approve of the prize token spend by the liquidation router, this can be done by running `node tools/approveLiquidationRouter.js`
 

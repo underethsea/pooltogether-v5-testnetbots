@@ -3,18 +3,19 @@ const ethers = require("ethers");
 const { CONTRACTS } = require("./constants/contracts");
 const { CONFIG } = require("./constants/config");
 const { PROVIDERS, SIGNER } = require("./constants/providers")
-const { web3GasEstimate } = require("./utilities/web3");
+//const { web3GasEstimate } = require("./utilities/web3");
 const { ADDRESS } = require("./constants/address")
+const { GasEstimate } = require("./utilities/gas")
 
 const maxGas = 20
 const minClaim = CONFIG.minToClaim
-const CLAIM_COST_AS_PERCENTAGE = 1 // 2 = 2%
+const CLAIM_COST_AS_PERCENTAGE = CONFIG.CLAIM_COST_AS_PERCENTAGE // 2 = 2%
 async function CollectRewards(prizeTokenPrice,ethPrice) {
 PRIZEPOOL_CONTRACT = CONTRACTS.PRIZEPOOLWITHSIGNER[CONFIG.CHAINNAME]
 
   try {
     // Get the balance of claim rewards
-    const awardsBalance = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].rewardBalance(CONFIG.WALLET);
+    const awardsBalance = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].rewardBalance(process.env.WALLET);
     console.log('Awards Balance:', awardsBalance.toString()," ",(parseInt(awardsBalance)/1e18).toFixed(4)," " + ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.SYMBOL + " ($",parseInt(awardsBalance)/1e18*prizeTokenPrice,")");
 if(parseInt(awardsBalance)/1e18<minClaim){
 console.log("not enough rewards accumulated to claim...(",minClaim,")")
@@ -78,11 +79,11 @@ CONFIG.WALLET, awardsBalance
     const data = PRIZEPOOL_CONTRACT.interface.encodeFunctionData(functionName, args);
 
     // calculate total gas cost in wei
-    const web3TotalGasCost = await web3GasEstimate(
-      data,
-      CONFIG.CHAINID,
-      CONFIG.WALLET,
-      ADDRESS[CONFIG.CHAINNAME].PRIZEPOOL
+    const web3TotalGasCost = await GasEstimate(
+PRIZEPOOL_CONTRACT,
+functionName,
+args,     
+CONFIG.PRIORITYFEE
     );
 
 
@@ -109,5 +110,5 @@ console.log("gas cost to claim rewards is too high")}else{
   }
 }
 
-//CollectRewards();
+CollectRewards(3300,3300);
 module.exports = { CollectRewards };

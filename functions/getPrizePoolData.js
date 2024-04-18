@@ -11,15 +11,16 @@ const GetPrizePoolData = async (block="latest") => {
     lastDrawId,
     numberOfTiers,
     grandPrizePeriod,
-    prizePoolPOOLBalance,
+    prizePoolPrizeTokenBalance,
     accountedBalance,
     reserve,
     prizesForTier = [],
     tierTimestamps = [],
     maxFee = [] ,
     prizeSizes = [],
-    tierPrizeValues = []
-    tierRemainingLiquidites = [] 
+    tierPrizeValues = [],
+    tierRemainingLiquidites = [],
+    maxFeePortionOfPrize
  try {
     [
       //maxFee,
@@ -29,9 +30,11 @@ const GetPrizePoolData = async (block="latest") => {
       lastDrawId,
       numberOfTiers,
       // grandPrizePeriod,
-      prizePoolPOOLBalance,
+      prizePoolPrizeTokenBalance,
       accountedBalance,
       reserve,
+      maxFeePortionOfPrize,
+      firstDrawOpensAt,
     ] = await Multicall([
       //CONTRACTS.CLAIMER[CONFIG.CHAINNAME].computeMaxFee({blockTag: block}),
       CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].lastAwardedDrawAwardedAt({blockTag: block}),
@@ -44,8 +47,11 @@ const GetPrizePoolData = async (block="latest") => {
       ),
       CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].accountedBalance({blockTag: block}),
       CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].reserve({blockTag: block}),
+      CONTRACTS.CLAIMER[CONFIG.CHAINNAME].maxFeePortionOfPrize({blockTag: block}),
+      CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].firstDrawOpensAt({blockTag: block}),
     ]);
-lastCompletedDrawStartedAt = parseInt(lastAwardedDrawAwardedAt) - parseInt(drawPeriodSeconds)
+
+lastCompletedDrawStartedAt = parseInt(firstDrawOpensAt) + ((lastDrawId) * parseInt(drawPeriodSeconds))
 // Create an array to hold all the multicall requests
 const multicallRequests = [];
 console.log("number of tiers",numberOfTiers)
@@ -90,7 +96,7 @@ for (let tier = 0; tier < numberOfTiers; tier++) {
   multicallRequests.push(CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].getTierAccrualDurationInDraws(tier))
   multicallRequests.push(CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].getTierPrizeSize(tier));
   multicallRequests.push(CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].getTierPrizeCount(tier));
-  multicallRequests.push(CONTRACTS.CLAIMER[CONFIG.CHAINNAME].computeMaxFee(tier));
+  //multicallRequests.push(CONTRACTS.CLAIMER[CONFIG.CHAINNAME].computeMaxFee(tier));
    multicallRequests.push(CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].getTierRemainingLiquidity(tier));
 
 } 
@@ -99,20 +105,21 @@ for (let tier = 0; tier < numberOfTiers; tier++) {
 const multicallResult = await Multicall(multicallRequests);
 const drawClosesAt = await CONTRACTS.PRIZEPOOL[CONFIG.CHAINNAME].drawClosesAt(lastDrawId);
 for (let i = 0; i < numberOfTiers; i++) {
-  const startIndex = i * 5; // Each tier has two multicall requests
+  const startIndex = i * 4; 
 
   const startTimestamp = drawClosesAt - (multicallResult[startIndex] * drawPeriodSeconds);
   const endTimestamp = drawClosesAt;
   const prizeSize = multicallResult[startIndex + 1];
   const prizeCount = multicallResult[startIndex + 2];
-  const tierMaxClaimFee = multicallResult[startIndex + 3];
-  const tierRemainingLiquidity = multicallResult[startIndex + 4]; 
-  console.log("tier ", i, " prize size ", (Number(prizeSize) / 1e18).toFixed(4), " remaining liquidity ", (Number(tierRemainingLiquidity)/ 1e18).toFixed(4));
+  //const tierMaxClaimFee = multicallResult[startIndex + 3];
+  const tierRemainingLiquidity = multicallResult[startIndex + 3]; 
+  console.log("tier ", i, " prize size ", (Number(prizeSize) / 1e18).toFixed(5), " remaining liquidity ", (Number(tierRemainingLiquidity)/ 1e18).toFixed(5), 
+" max fee ",((Number(prizeSize) / 1e18) * (Number(maxFeePortionOfPrize) / 1e18)).toFixed(5));
 
   tierTimestamps.push({ startTimestamp, endTimestamp });
   prizeSizes.push(prizeSize)
   prizesForTier.push(prizeCount)
-  maxFee.push(tierMaxClaimFee)
+  //maxFee.push(tierMaxClaimFee)
   tierRemainingLiquidites.push(tierRemainingLiquidity)
 }
 //console.log("max fees",maxFee)
@@ -133,8 +140,8 @@ for (let i = 0; i < numberOfTiers; i++) {
   console.log("tiers ", numberOfTiers.toString());
 
   console.log(
-    "prize pool POOL balance ",
-    (prizePoolPOOLBalance / 1e18).toFixed(2),
+    "prizepool ",ADDRESS[CONFIG.CHAINNAME].PRIZETOKEN.SYMBOL," balance ",
+    (prizePoolPrizeTokenBalance / 1e18).toFixed(2),
     " accounted balance ",
     (accountedBalance / 1e18).toFixed(2),
     " reserve ",
@@ -148,7 +155,7 @@ for (let i = 0; i < numberOfTiers; i++) {
   const timeUntilNextDraw = drawPeriodSeconds - timeSinceLastDrawStarted;
 
   console.log(
-    `Time since last draw started ${Math.round(
+    `Time since open draw started ${Math.round(
       timeSinceLastDrawStarted / 60
     )} minutes`,
     ` Time until next draw ${Math.round(timeUntilNextDraw / 60)} minutes`
@@ -194,12 +201,12 @@ for (let i = 0; i < numberOfTiers; i++) {
     lastDrawId,
     numberOfTiers,
     tierTimestamps,
-    lastCompletedDrawStartedAt,
+    //lastCompletedDrawStartedAt,
     drawPeriodSeconds,
     grandPrizePeriod,
     tierPrizeValues,
     prizesForTier,
-    maxFee,
+    //maxFee,
 tierRemainingLiquidites,
 reserve
   };

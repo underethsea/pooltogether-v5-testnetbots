@@ -8,9 +8,15 @@ const { CONFIG } = require('../constants/config');
 const parseGweiToWei = (num) => ethers.utils.parseUnits(num.toString(), 'gwei');
 const parseGwei = (num) => ethers.utils.parseUnits(num.toString(),'gwei')
 
-async function GasEstimate(contract, method, args, baseFee, priorityFee, options={}) {
+async function GasEstimate(contract, method, args,  priorityFee, options={}) {
     try {
-        const gasEstimate = await contract.estimateGas[method](...args,options);
+
+  const [feeData, gasEstimate] = await Promise.all([
+            PROVIDERS[CONFIG.CHAINNAME].getFeeData(),
+            contract.estimateGas[method](...args, options)
+        ]);
+
+//console.log("Fee data base fee",feeData.lastBaseFeePerGas.toString())
 //        console.log("gas used estimate", gasEstimate.toString());
 
         const tx = {
@@ -20,7 +26,7 @@ async function GasEstimate(contract, method, args, baseFee, priorityFee, options
         };
 
         // Calculations using BigNumber for accuracy
-        const baseFeeWei = parseGweiToWei(baseFee);
+        const baseFeeWei = feeData.lastBaseFeePerGas
         const priorityFeeWei = parseGweiToWei(priorityFee);
         const maxFeeWei = baseFeeWei.add(priorityFeeWei);
 
@@ -33,14 +39,15 @@ async function GasEstimate(contract, method, args, baseFee, priorityFee, options
 
         const totalFee = l2executionFee.add(l1Fee);
 //        console.log("combined", ethers.utils.formatEther(totalFee), "ETH");
-
+console.log("l1 fee", ethers.utils.formatEther(l1Fee), "ETH","  l2 fee", ethers.utils.formatEther(l2executionFee), "ETH",
+"combined", ethers.utils.formatEther(totalFee), "ETH")
         return totalFee;
     } catch (error) {
         console.error('Error interacting with smart contract:', error);
         throw error; // Rethrow the error to handle it at a higher level
     }
 }
-
+/*
 async function test() {
     const contract = CONTRACTS.TOKENFAUCET[CONFIG.CHAINNAME];
     const method = "drip";
@@ -56,6 +63,6 @@ maxFeePerGas: parseGwei(priorityFee)})
 const receipt = await tx.wait()
 console.log(receipt.transactionHash)
 }
-
+*/
 //test();
 module.exports = {GasEstimate}
